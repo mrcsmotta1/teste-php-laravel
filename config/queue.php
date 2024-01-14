@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'sync'),
+    'default' => env('QUEUE_CONNECTION', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,6 +70,14 @@ return [
             'block_for' => null,
             'after_commit' => false,
         ],
+
+        'file_processing_queue' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+            'queue' => 'file_processing_queue', // Nome da fila
+            'retry_after' => 90,
+        ],
+
 
     ],
 
