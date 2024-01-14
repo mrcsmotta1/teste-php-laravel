@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\ImportFile;
 
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-
+use App\Helpers\ImportDispatcherFile;
 use App\Jobs\ProcessDocumentCreation;
+use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ImportFile\ImportValidationRequest;
@@ -18,12 +18,8 @@ class ImportController extends Controller
         return view('importFile.upload');
     }
 
-    public function processUpload(ImportValidationRequest $request): RedirectResponse
+    public function processUpload(ImportValidationRequest $request, Queue $queue): RedirectResponse
     {
-
-        DB::table('categories')->insert([
-            'name' => 'Rem'
-        ]);
 
         $file = $request->file('file');
 
