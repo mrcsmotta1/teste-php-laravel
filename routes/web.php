@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ImportFile\ImportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('index');
+})->name('index');
+
+Route::get('/import/upload', [ImportController::class, 'showUploadForm'])->name('import.upload.form');
+Route::post('/import/upload', [ImportController::class, 'processUpload'])->name('import.upload.process');
