@@ -9,7 +9,6 @@ services:
     volumes:
       - ./:/app
       - ./infra/prod.ini:/usr/local/etc/php/conf.d/prod.ini
-      - .90-xdebug.ini:/usr/local/etc/php/conf.d
     working_dir: /app
     depends_on:
       - database
