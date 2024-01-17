@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ImportFile\Category;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -12,11 +13,15 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('categories')->insert([
-            'name' => 'Remessa Parcial'
-        ]);
-        DB::table('categories')->insert([
-            'name' => 'Remessa'
-        ]);
+
+        $categoryias = [
+            ['name' => 'Remessa Parcial'],
+            ['name' => 'Remessa']
+        ];
+
+        foreach ($categoryias as $categoria) {
+            Category::create($categoria);
+        }
+
     }
 }
