@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Aplicação</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
 
@@ -19,6 +20,9 @@
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('import.upload.form') }}">Importar Arquivo</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('import.process.queue.form') }}">Processar Fila</a>
             </li>
         </ul>
     </div>
