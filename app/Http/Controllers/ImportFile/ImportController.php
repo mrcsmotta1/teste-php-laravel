@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ImportFile;
 
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Helpers\ImportDispatcherFile;
 use App\Jobs\ProcessDocumentCreation;
@@ -27,6 +28,8 @@ class ImportController extends Controller
         $jsonData = json_decode(Storage::disk('public')->get($filePath), true);
 
         ProcessDocumentCreation::dispatch($jsonData)->onQueue('file_processing_queue');
+        $filename = $file->getClientOriginalName();
+        Log::info("Arquivo {$filename} enviado para o processamento com sucesso!");
 
         return redirect()->route('index')->with('success', 'JSON enviado para processamento.');
     }
