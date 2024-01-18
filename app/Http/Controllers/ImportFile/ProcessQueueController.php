@@ -27,20 +27,32 @@ class ProcessQueueController extends Controller
     {
         $connection = 'database';
 
+        $result = false;
         while ($job = Queue::connection($connection)->pop('file_processing_queue')) {
             $rs = unserialize($job->payload()['data']['command']);
 
-            $exercicio = trim($rs->data['exercicio']);
-
-            foreach ($rs->data['documentos'] as $key => $documento) {
-                $result = $this->processDocument($documento, $exercicio);
+            if (empty($rs->data)) {
+                Log::error("Erro ao tentar o unserialize no arquivo, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
             }
 
-            $job->delete();
+            if (!empty($rs->data)) {
+                $exercicio = trim($rs->data['exercicio']);
+                Log::info("Unserialize do arquivo: {$exercicio}, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
+
+                foreach ($rs->data['documentos'] as $key => $documento) {
+                    $result = $this->processDocument($documento, $exercicio);
+                }
+
+                $job->delete();
+            }
         }
 
-        if(!$result)  return redirect()->route('import.process.queue.form')->with('error', 'Erro ao processar a fila, verifique o conteudo do arquivo e  importe novamente.');
+        if (!$result) {
+            Log::error("Erro ao processar a fila, verifique o conteudo do arquivo e importe novamente, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
+            return redirect()->route('import.process.queue.form')->with('error', 'Erro ao processar a fila, verifique o conteudo do arquivo e importe novamente.');
+        }
 
+        Log::info("Fila processada com sucesso arquivo: {$exercicio}, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
         return redirect()->route('import.process.queue.form')->with('success', 'Fila processada com sucesso.');
     }
 
@@ -49,20 +61,25 @@ class ProcessQueueController extends Controller
         $dataLower = $this->dataLower($data);
 
         if ($dataLower['categoria'] !== 'remessa' && $dataLower['categoria'] !== 'remessa parcial') {
-            Log::error('Categoria inválida: ' . $dataLower['categoria']);
+            Log::error("Categoria inválida: {$dataLower['categoria']}, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
             return false;
         }
 
         if ($dataLower['categoria'] === 'remessa' && strpos($dataLower['titulo'], 'semestre') === false) {
-            Log::error('Categoria Remessa inválida sem Semestre.');
+            Log::error("Categoria Remessa inválida sem Semestre, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
             return false;
         }
         if ($dataLower['categoria'] === 'remessa parcial' && $this->isValidMonth($dataLower['titulo']) === false) {
-            Log::error('Categoria Remessa Parcial inválida sem nome de um mês.');
+            Log::error("Categoria Remessa Parcial inválida sem nome de um mês válido, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
             return false;
         }
 
         $categoryID = $this->getCategoryId($dataLower['categoria']);
+
+        if (!$categoryID) {
+            Log::error("Error ao selecionar categoria do arquivo {$exercicio} no BD!, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
+            return false;
+        }
 
         $newDocumentId = Documents::create([
             'category_id' =>  $categoryID,
@@ -71,7 +88,7 @@ class ProcessQueueController extends Controller
             'contents' => $data['conteúdo'],
         ])->id;
 
-        Log::info("Documento id:{$newDocumentId} salvo com sucesso!");
+        Log::info("Documento id:{$newDocumentId} salvo com sucesso!, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__);
 
         return true;
     }
@@ -92,7 +109,7 @@ class ProcessQueueController extends Controller
     {
         $dataWithAccent = [];
         foreach ($data as $key => $value) {
-            $withAccent = preg_replace( '/[`^~\'"]/', null, iconv( 'UTF-8', 'ASCII//TRANSLIT', $key ) );
+            $withAccent = preg_replace('/[`^~\'"]/', null, iconv('UTF-8', 'ASCII//TRANSLIT', $key));
             $dataWithAccent[$withAccent] = $value;
         }
 
