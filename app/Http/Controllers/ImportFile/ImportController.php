@@ -23,12 +23,12 @@ class ImportController extends Controller
     {
 
         $file = $request->file('file');
+        $filename = $file->getClientOriginalName();
 
-        $filePath = $file->storeAs('import', 'imported_file.json', 'public');
+        $filePath = $file->storeAs('import', $filename, 'public');
         $jsonData = json_decode(Storage::disk('public')->get($filePath), true);
 
         ProcessDocumentCreation::dispatch($jsonData)->onQueue('file_processing_queue');
-        $filename = $file->getClientOriginalName();
         Log::info("Arquivo {$filename} enviado para o processamento com sucesso!");
 
         return redirect()->route('index')->with('success', 'JSON enviado para processamento.');
