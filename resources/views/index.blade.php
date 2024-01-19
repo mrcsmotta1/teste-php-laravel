@@ -27,6 +27,16 @@
         </ul>
     </div>
 </nav>
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
+@error('file')
+    <div class="alert alert-danger">{{ $message }}</div>
+@enderror
+
 @if(session('success'))
     <div class="alert alert-success">
         {{ session('success') }}

@@ -28,6 +28,6 @@ class ImportController extends Controller
 
         FileHelper::moveAndDeleteFile($filePath, $fileName, __CLASS__, __FUNCTION__);
 
-        return redirect()->route('index')->with('success', 'JSON enviado para processamento.');
+        return redirect()->route('import.process.queue')->with('success', 'JSON enviado para processamento.');
     }
 }
