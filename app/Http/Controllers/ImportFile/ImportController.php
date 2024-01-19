@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\ImportFile;
 
-use Illuminate\Support\Facades\Log;
+use App\Utilities\FileHelper;
+use App\Utilities\DirectoryHelper;
 use App\Http\Controllers\Controller;
-use App\Helpers\ImportDispatcherFile;
-use App\Jobs\ProcessDocumentCreation;
-use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
+
 use App\Http\Requests\ImportFile\ImportValidationRequest;
 
 class ImportController extends Controller
@@ -19,17 +17,16 @@ class ImportController extends Controller
         return view('importFile.upload');
     }
 
-    public function processUpload(ImportValidationRequest $request, Queue $queue): RedirectResponse
+    public function processUpload(ImportValidationRequest $request): RedirectResponse
     {
 
+        DirectoryHelper::createDirectoryIfNotExists('controller', __CLASS__, __FUNCTION__);
+
         $file = $request->file('file');
-        $filename = $file->getClientOriginalName();
+        $fileName = $file->getClientOriginalName();
+        $filePath = $file->storeAs('import', $fileName, 'public');
 
-        $filePath = $file->storeAs('import', $filename, 'public');
-        $jsonData = json_decode(Storage::disk('public')->get($filePath), true);
-
-        ProcessDocumentCreation::dispatch($jsonData)->onQueue('file_processing_queue');
-        Log::info("Arquivo {$filename} enviado para o processamento com sucesso!");
+        FileHelper::moveAndDeleteFile($filePath, $fileName, __CLASS__, __FUNCTION__);
 
         return redirect()->route('index')->with('success', 'JSON enviado para processamento.');
     }
