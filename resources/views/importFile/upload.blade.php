@@ -2,20 +2,12 @@
 
 @extends('index')
 
-
-
 @section('content')
     <div class="container">
         <div class="card">
             <div class="card-header">Upload de Arquivo</div>
 
             <div class="card-body">
-                @if (session('success'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
                 <form action="{{ route('import.upload.process') }}" method="post" enctype="multipart/form-data">
                     @csrf
 
@@ -30,6 +22,3 @@
         </div>
     </div>
 @endsection
-@error('file')
-    <div class="alert alert-danger">{{ $message }}</div>
-@enderror
