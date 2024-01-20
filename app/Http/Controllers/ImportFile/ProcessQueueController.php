@@ -38,6 +38,12 @@ class ProcessQueueController extends Controller
 
             if (!empty($rs->data)) {
                 $exercicio = trim($rs->data['exercicio']);
+
+                if (empty($exercicio)) {
+                    $exercicio = date('YmdHis');
+                    Log::error("Campo exercicio vazio, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__  .  " Line: " . __line__);
+                }
+
                 array_push($exercicioProcessado, $exercicio);
                 Log::info("Unserialize do arquivo: {$exercicio}, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__  .  " Line: " . __line__);
 
@@ -59,7 +65,7 @@ class ProcessQueueController extends Controller
         return redirect()->route('import.process.queue.form')->with('success', 'Fila processada com sucesso.');
     }
 
-    private function processDocument($data, $exercicio)
+    public function processDocument($data, $exercicio)
     {
         $dataLower = $this->dataLower($data);
 
@@ -96,7 +102,7 @@ class ProcessQueueController extends Controller
         return true;
     }
 
-    private function dataLower($data)
+    public function dataLower($data)
     {
         $newData = [];
         $newdataLower = [];
@@ -108,7 +114,7 @@ class ProcessQueueController extends Controller
         return $newdataLower;
     }
 
-    private function removeAccent($data)
+    public function removeAccent($data)
     {
         $dataWithAccent = [];
         foreach ($data as $key => $value) {
@@ -119,7 +125,7 @@ class ProcessQueueController extends Controller
         return $dataWithAccent;
     }
 
-    private function isValidMonth($title)
+    public function isValidMonth($title)
     {
         $months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
@@ -132,7 +138,7 @@ class ProcessQueueController extends Controller
         return false;
     }
 
-    private function getCategoryId($categoria)
+    public function getCategoryId($categoria)
     {
         $categoryID = Category::where('name', $categoria)->value('id');
 
