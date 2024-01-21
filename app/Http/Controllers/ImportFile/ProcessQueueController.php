@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\ImportFile;
 
-use App\Models\ImportFile\Category;
+use App\Models\Category;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\ImportFile\Documents;
+use App\Models\Documents;
 use Illuminate\Support\Facades\Queue;
 
 class ProcessQueueController extends Controller
@@ -97,9 +97,9 @@ class ProcessQueueController extends Controller
             'contents' => $data['conteúdo'],
         ])->id;
 
-        Log::info("Documento id:{$newDocumentId} salvo com sucesso!, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__  .  " Line: " . __line__);
+        Log::info("Documento id: {$newDocumentId} salvo com sucesso!, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__  .  " Line: " . __line__);
 
-        return true;
+        return $newDocumentId;
     }
 
     public function dataLower($data)
@@ -108,7 +108,7 @@ class ProcessQueueController extends Controller
         $newdataLower = [];
         $newData = $this->removeAccent($data);
         foreach ($newData as $key => $value) {
-            $newdataLower[$key] = ($key == 'conteudo') ? $value : strtolower($value);
+            $newdataLower[$key] = ($key == 'conteudo') ? $value : mb_strtolower($value);
         }
 
         return $newdataLower;
@@ -130,7 +130,7 @@ class ProcessQueueController extends Controller
         $months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
         foreach ($months as $month) {
-            if (strpos(strtolower($title), $month) !== false) {
+            if (strpos(mb_strtolower($title), $month) !== false) {
                 return true;
             }
         }
@@ -140,7 +140,7 @@ class ProcessQueueController extends Controller
 
     public function getCategoryId($categoria)
     {
-        $categoryID = Category::where('name', $categoria)->value('id');
+        $categoryID = Category::where('name', 'like', "%{$categoria}%")->value('id');
 
         return $categoryID;
     }
