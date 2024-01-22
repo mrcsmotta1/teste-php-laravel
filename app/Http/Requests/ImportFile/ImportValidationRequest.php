@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests\ImportFile;
 
 use App\Rules\JsonValidateContentSizeRule;
@@ -26,13 +27,12 @@ class ImportValidationRequest extends FormRequest
         $this->maxSize = env('SIZE_MAX_CONTENT');
 
         return [
-            'file' => ['required', 'max:10240', new JsonValidationRule($this->maxSize)],
+            'file' => ['required', 'max:10240', new JsonValidationRule],
         ];
     }
     public function messages()
     {
         return [
-            "file.max" => "O tamanho máximo permitido para o arquivo é de {$this->maxSize}.",
             'file.required' => 'Nenhum arquivo foi enviado.',
         ];
     }
