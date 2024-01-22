@@ -1,5 +1,11 @@
 @extends('index')
 
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
+
 @section('content')
     <div class="container">
         <div class="card">
@@ -25,7 +31,6 @@
                 url: "{{ route('import.check.queue') }}",
                 type: 'GET',
                 success: function(response) {
-                    console.log('response: ', response);
                     if (response.jobsCount === 0) {
                         alert('Nenhum arquivo na fila para processar.');
                     } else {
