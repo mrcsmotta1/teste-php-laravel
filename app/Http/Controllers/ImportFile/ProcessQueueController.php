@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\ImportFile;
 
-use App\Models\ImportFile\Category;
+use App\Models\Category;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Models\ImportFile\Documents;
+use App\Models\Documents;
 use Illuminate\Support\Facades\Queue;
 
 class ProcessQueueController extends Controller
@@ -38,6 +38,12 @@ class ProcessQueueController extends Controller
 
             if (!empty($rs->data)) {
                 $exercicio = trim($rs->data['exercicio']);
+
+                if (empty($exercicio)) {
+                    $exercicio = date('YmdHis');
+                    Log::error("Campo exercicio vazio, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__  .  " Line: " . __line__);
+                }
+
                 array_push($exercicioProcessado, $exercicio);
                 Log::info("Unserialize do arquivo: {$exercicio}, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__  .  " Line: " . __line__);
 
@@ -59,7 +65,7 @@ class ProcessQueueController extends Controller
         return redirect()->route('import.process.queue.form')->with('success', 'Fila processada com sucesso.');
     }
 
-    private function processDocument($data, $exercicio)
+    public function processDocument($data, $exercicio)
     {
         $dataLower = $this->dataLower($data);
 
@@ -91,24 +97,24 @@ class ProcessQueueController extends Controller
             'contents' => $data['conteúdo'],
         ])->id;
 
-        Log::info("Documento id:{$newDocumentId} salvo com sucesso!, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__  .  " Line: " . __line__);
+        Log::info("Documento id: {$newDocumentId} salvo com sucesso!, " . " Class: " . __CLASS__ . " Function: " . __FUNCTION__  .  " Line: " . __line__);
 
-        return true;
+        return $newDocumentId;
     }
 
-    private function dataLower($data)
+    public function dataLower($data)
     {
         $newData = [];
         $newdataLower = [];
         $newData = $this->removeAccent($data);
         foreach ($newData as $key => $value) {
-            $newdataLower[$key] = ($key == 'conteudo') ? $value : strtolower($value);
+            $newdataLower[$key] = ($key == 'conteudo') ? $value : mb_strtolower($value);
         }
 
         return $newdataLower;
     }
 
-    private function removeAccent($data)
+    public function removeAccent($data)
     {
         $dataWithAccent = [];
         foreach ($data as $key => $value) {
@@ -119,12 +125,12 @@ class ProcessQueueController extends Controller
         return $dataWithAccent;
     }
 
-    private function isValidMonth($title)
+    public function isValidMonth($title)
     {
         $months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
         foreach ($months as $month) {
-            if (strpos(strtolower($title), $month) !== false) {
+            if (strpos(mb_strtolower($title), $month) !== false) {
                 return true;
             }
         }
@@ -132,9 +138,9 @@ class ProcessQueueController extends Controller
         return false;
     }
 
-    private function getCategoryId($categoria)
+    public function getCategoryId($categoria)
     {
-        $categoryID = Category::where('name', $categoria)->value('id');
+        $categoryID = Category::where('name', 'like', "%{$categoria}%")->value('id');
 
         return $categoryID;
     }
